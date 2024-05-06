@@ -57,8 +57,7 @@ More importantly, you can't change LED output pin at runtime there.
 
 * [Implementation notes](extras/Implementation%20notes.txt)
 * [Additional documentation](https://github.com/martin-eden/EmbeddedCpp-me_Ws2812b-Docs)
+  (Datasheet, oscilloscope timings, sticky pins weirdness.)
 * [My other repositories](https://github.com/martin-eden/contents)
 
-```
 -- Martin, 2024-03 / 2024-05
-```
