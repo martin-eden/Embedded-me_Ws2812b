@@ -50,14 +50,14 @@ color manipulation routines in their libraries. Neverending projects.
 
 More importantly, you can't change LED output pin at runtime there.
 
-* (FastLED)(https://github.com/FastLED/FastLED)
-* (Adafruit NeoPixel)(https://github.com/adafruit/Adafruit_NeoPixel)
+* [FastLED](https://github.com/FastLED/FastLED)
+* [Adafruit NeoPixel](https://github.com/adafruit/Adafruit_NeoPixel)
 
 # See also
 
 * [Implementation notes](extras/Implementation%20notes.txt)
-* (Additional documentation)(https://github.com/martin-eden/EmbeddedCpp-me_Ws2812b-Docs)
-* (My other repositories)(https://github.com/martin-eden/contents)
+* [Additional documentation](https://github.com/martin-eden/EmbeddedCpp-me_Ws2812b-Docs)
+* [My other repositories](https://github.com/martin-eden/contents)
 
 ```
 -- Martin, 2024-03 / 2024-05
