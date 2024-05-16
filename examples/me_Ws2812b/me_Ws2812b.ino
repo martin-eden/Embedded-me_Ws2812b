@@ -26,12 +26,12 @@
 
   Author: Martin Eden
   Development: 2024-02/2024-05
-  Last mod.: 2024-05-06
+  Last mod.: 2024-05-16
 */
 
 #include <me_Types.h> // TUint's
 #include <me_UartSpeeds.h> // serial speed
-#include <me_Install_StandardStreams.h> // printf() to serial
+#include <me_InstallStandardStreams.h> // printf() to serial
 #include <me_Math.h> // deg to rad
 
 #include <me_Ws2812b.h>
@@ -44,7 +44,7 @@ const TUint_1 NumPixels = 60;
 
 // --
 
-void Test_ObserveBitsTiming(TUint_1 LedStripePin = LedStripePin);
+void Test_ObserveBitsTiming();
 void Test_WhiteSine();
 void Test_ColorSmoothing();
 
@@ -56,10 +56,10 @@ void setup()
   Serial.begin(SerialSpeed);
   delay(500);
 
-  Install_StandardStreams();
+  InstallStandardStreams();
 
-  printf("[me_Ws2812b.ino]\n");
-  printf("Serial speed is %lu bps.\n", SerialSpeed);
+  printf("[me_Ws2812b]\n");
+  printf("Freq (Hz) = %lu\n", F_CPU);
   delay(500);
 }
 
@@ -67,25 +67,26 @@ void loop()
 {
   // Choose one of the tests:
 
-  /*
-  for (TUint_1 Pin = A5; Pin > 0; --Pin)
-    Test_ObserveBitsTiming(Pin);
-  */
+  // Test_ObserveBitsTiming();
+  // delay(1);
+  // Test_ObserveBitsTiming();
 
-  // Test_ColorSmoothing();
+  // Test_WhiteSine();
 
-  Test_WhiteSine();
+  Test_ColorSmoothing();
 }
+
+// --
+
+using namespace me_Ws2812b;
 
 // --
 
 /*
   Send several specific values to check timing margins with oscilloscope.
 */
-void Test_ObserveBitsTiming(TUint_1 LedStripePin = LedStripePin)
+void Test_ObserveBitsTiming()
 {
-  using namespace me_Ws2812b;
-
   /*
     I want to see timings between bits. And between bytes.
 
@@ -122,8 +123,6 @@ void Test_ObserveBitsTiming(TUint_1 LedStripePin = LedStripePin)
 */
 void Test_WhiteSine()
 {
-  using namespace me_Ws2812b;
-
   TPixel Pixels[NumPixels];
 
   static TUint_2 BaseAngle_Deg = 0;
@@ -171,22 +170,26 @@ void Test_WhiteSine()
 }
 
 // --
+void PrintPixels(TPixel Pixels[], TUint_2 NumPixels);
 
-TUint_1 MapColorComponent(
-  TUint_1 PixelIdx,
-  TUint_2 NumPixels,
-  TUint_1 StartColorValue,
-  TUint_1 EndColorValue
-)
+/*
+  Send smooth transition from <StartColor> to <EndColor>.
+*/
+void Test_ColorSmoothing()
 {
-  return
-    map(
-      PixelIdx,
-      0,
-      NumPixels - 1,
-      StartColorValue,
-      EndColorValue
-    );
+  const TPixel StartColor = { .Green = 255, .Red = 96, .Blue = 0, };
+  const TPixel EndColor = { .Green = 32, .Red = 64, .Blue = 64, };
+
+  TPixel Pixels[NumPixels];
+
+  for (TUint_1 PixelIdx = 0; PixelIdx < NumPixels; ++PixelIdx)
+    Pixels[PixelIdx] = MapColor(PixelIdx, NumPixels, StartColor, EndColor);
+
+  // PrintPixels(Pixels, NumPixels);
+
+  SendPixels(Pixels, NumPixels, A0);
+
+  delay(5000);
 }
 
 me_Ws2812b::TPixel MapColor(
@@ -208,29 +211,38 @@ me_Ws2812b::TPixel MapColor(
   return Result;
 }
 
-/*
-  Send smooth transition from <StartColor> to <EndColor>.
-*/
-void Test_ColorSmoothing()
+TUint_1 MapColorComponent(
+  TUint_1 PixelIdx,
+  TUint_2 NumPixels,
+  TUint_1 StartColorValue,
+  TUint_1 EndColorValue
+)
 {
-  using namespace me_Ws2812b;
-
-  TPixel StartColor = { .Green = 32, .Red = 96, .Blue = 0, };
-  TPixel EndColor = { .Green = 32, .Red = 64, .Blue = 64, };
-
-  TPixel Pixels[NumPixels];
-
-  for (TUint_1 PixelIdx = 0; PixelIdx < NumPixels; ++PixelIdx)
-  {
-    Pixels[PixelIdx] = MapColor(PixelIdx, NumPixels, StartColor, EndColor);
-  }
-
-  SendPixels(Pixels, NumPixels, LedStripePin);
-
-  delay(5000);
+  return
+    map(
+      PixelIdx,
+      0,
+      NumPixels - 1,
+      StartColorValue,
+      EndColorValue
+    );
 }
 
 // --
+
+void PrintPixels(TPixel Pixels[], TUint_2 NumPixels)
+{
+  for (TUint_2 PixelIdx = 0; PixelIdx < NumPixels; ++PixelIdx)
+  {
+    printf(
+      "[%2u] (%02X %02X %02X)\n",
+      PixelIdx,
+      Pixels[PixelIdx].Green,
+      Pixels[PixelIdx].Red,
+      Pixels[PixelIdx].Blue
+    );
+  }
+}
 
 /*
   2024-03
