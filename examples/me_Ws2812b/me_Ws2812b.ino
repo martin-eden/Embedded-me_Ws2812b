@@ -1,27 +1,6 @@
 // Test of [me_Ws2812b] library.
 
 /*
-  Library exports:
-
-    * namespace "me_Ws2812b"
-
-      * struc TPixel
-
-          ui1 Green
-          ui1 Red
-          ui1 Blue
-
-      * bool SendPixels(...)
-
-          TPixel Pixels[]
-          ui2 NumPixels
-          ui1 OutputPin
-
-  Keep in mind that each pixel of WS2821B LED stripe keeps last written
-  value.
-*/
-
-/*
   Board: Arduino Uno
 
   Author: Martin Eden
@@ -39,27 +18,21 @@
 // --
 
 const TUint_1 LedStripePin = A0;
-
 const TUint_1 NumPixels = 60;
 
-// --
-
-void Test_ObserveBitsTiming();
-void Test_WhiteSine();
-void Test_ColorSmoothing();
-
-// --
+// Forwards
+void Test_ObserveBitsTiming(TUint_1 OutputPin);
+void Test_WhiteSine(TUint_2 NumPixels, TUint_1 OutputPin);
+void Test_ColorSmoothing(TUint_2 NumPixels, TUint_1 OutputPin);
 
 void setup()
 {
-  const TUint_4 SerialSpeed = me_UartSpeeds::Arduino_Normal_Bps;
-  Serial.begin(SerialSpeed);
+  Serial.begin(me_UartSpeeds::Arduino_Normal_Bps);
   delay(500);
 
   InstallStandardStreams();
 
   printf("[me_Ws2812b]\n");
-  printf("Freq (Hz) = %lu\n", F_CPU);
   delay(500);
 }
 
@@ -67,13 +40,12 @@ void loop()
 {
   // Choose one of the tests:
 
-  // Test_ObserveBitsTiming();
-  // delay(1);
-  // Test_ObserveBitsTiming();
+  // for (TUint_1 OutputPin = A0; OutputPin <= A4; ++OutputPin)
+  //   Test_ObserveBitsTiming(OutputPin);
 
-  // Test_WhiteSine();
+  Test_WhiteSine(NumPixels, LedStripePin);
 
-  Test_ColorSmoothing();
+  // Test_ColorSmoothing(NumPixels, LedStripePin);
 }
 
 // --
@@ -85,7 +57,7 @@ using namespace me_Ws2812b;
 /*
   Send several specific values to check timing margins with oscilloscope.
 */
-void Test_ObserveBitsTiming()
+void Test_ObserveBitsTiming(TUint_1 OutputPin)
 {
   /*
     I want to see timings between bits. And between bytes.
@@ -111,7 +83,7 @@ void Test_ObserveBitsTiming()
       },
     };
 
-  SendPixels(TestPixels, sizeof(TestPixels) / sizeof(TPixel), LedStripePin);
+  SendPixels(TestPixels, sizeof(TestPixels) / sizeof(TPixel), OutputPin);
 
   delay(500);
 }
@@ -121,7 +93,7 @@ void Test_ObserveBitsTiming()
 /*
   Send rolling white sine wave.
 */
-void Test_WhiteSine()
+void Test_WhiteSine(TUint_2 NumPixels, TUint_1 OutputPin)
 {
   TPixel Pixels[NumPixels];
 
@@ -164,7 +136,7 @@ void Test_WhiteSine()
 
   BaseAngle_Deg = (BaseAngle_Deg + BaseAngleShift_Deg) % 360;
 
-  SendPixels(Pixels, NumPixels, LedStripePin);
+  SendPixels(Pixels, NumPixels, OutputPin);
 
   delay(20);
 }
@@ -175,7 +147,7 @@ void PrintPixels(TPixel Pixels[], TUint_2 NumPixels);
 /*
   Send smooth transition from <StartColor> to <EndColor>.
 */
-void Test_ColorSmoothing()
+void Test_ColorSmoothing(TUint_2 NumPixels, TUint_1 OutputPin)
 {
   const TPixel StartColor = { .Green = 255, .Red = 96, .Blue = 0, };
   const TPixel EndColor = { .Green = 32, .Red = 64, .Blue = 64, };
@@ -187,7 +159,7 @@ void Test_ColorSmoothing()
 
   // PrintPixels(Pixels, NumPixels);
 
-  SendPixels(Pixels, NumPixels, A0);
+  SendPixels(Pixels, NumPixels, OutputPin);
 
   delay(5000);
 }
