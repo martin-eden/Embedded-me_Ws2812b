@@ -44,24 +44,11 @@
 #include <Arduino.h> // delayMicroseconds()
 #include <me_ArduinoUno.h> // PinToIoRegisterAndBit()
 
-// Summary and forwards
-TBool me_Ws2812b::SendPixels(
-  TPixel Pixels[],
-  TUint_2 Length,
-  TUint_1 Pin
-);
-
-TBool SendBytes(
-  TBytes Bytes,
-  TUint_2 Length,
-  TUint_1 Pin
-);
-
-TBool EmitBytes(
-  TBytes Bytes,
-  TUint_2 Length,
-  TUint_1 Pin
-);
+// Forwards:
+TBool SendBytes(TBytes Bytes, TUint_2 Length, TUint_1 Pin);
+TBool EmitBytes(TBytes Bytes, TUint_2 Length, TUint_1 Pin)
+  __attribute__ ((optimize("O0")));
+//
 
 /*
   Send array of pixels to given pin
@@ -137,11 +124,7 @@ TBool SendBytes(TBytes Bytes, TUint_2 Length, TUint_1 Pin)
 /*
   Meat function for emitting bytes at 800 kBits
 */
-TBool EmitBytes(
-  TBytes Bytes,
-  TUint_2 Length,
-  TUint_1 Pin
-)
+TBool EmitBytes(TBytes Bytes, TUint_2 Length, TUint_1 Pin)
 {
   TUint_2 PortAddress;
   TUint_1 PortAndMask;
@@ -187,9 +170,6 @@ TBool EmitBytes(
 
       * Bits counter is decremented inside "if"s. We have time slots
         there.
-
-      * "mov <r>, <r>" is used as "nop". Compiler strips "nop"'s
-        when optimizing for code size (default "-Os" option).
 
       * There are no instructions to get/set bit by variable index.
 
@@ -246,15 +226,15 @@ TBool EmitBytes(
       and %[PortValue], %[PortAndMask]
       st %a[PortAddress], %[PortValue]
 
-      mov %[BitCounter], %[BitCounter]
-      mov %[BitCounter], %[BitCounter]
-      mov %[BitCounter], %[BitCounter]
-      mov %[BitCounter], %[BitCounter]
+      nop
+      nop
+      nop
+      nop
 
-      mov %[BitCounter], %[BitCounter]
-      mov %[BitCounter], %[BitCounter]
-      mov %[BitCounter], %[BitCounter]
-      mov %[BitCounter], %[BitCounter]
+      nop
+      nop
+      nop
+      nop
 
       dec %[BitCounter]
       breq BitLoop_End
@@ -262,14 +242,14 @@ TBool EmitBytes(
 
     IsOne:
 
-      mov %[BitCounter], %[BitCounter]
-      mov %[BitCounter], %[BitCounter]
-      mov %[BitCounter], %[BitCounter]
+      nop
+      nop
+      nop
+      nop
 
-      mov %[BitCounter], %[BitCounter]
-      mov %[BitCounter], %[BitCounter]
-      mov %[BitCounter], %[BitCounter]
-      mov %[BitCounter], %[BitCounter]
+      nop
+      nop
+      nop
 
       # Output LOW
       and %[PortValue], %[PortAndMask]
