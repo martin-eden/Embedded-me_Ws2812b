@@ -31,7 +31,7 @@ SendPixels(
 );
 ```
 
-See [example](examples/me_Ws2812b/me_Ws2812b.ino) for real code.
+See [examples](examples) for real code.
 
 # Code
 
@@ -39,7 +39,6 @@ Code is readable.
 
 * [Interface](src/me_Ws2812b.h)
 * [Implementation](src/me_Ws2812b.cpp)
-* [My development rantings](extras/Implementation%20notes.txt)
 
 # Other people implementations
 
@@ -56,7 +55,7 @@ More importantly, you can't change LED output pin at runtime there.
 
 # See also
 
-* [Implementation notes](extras/Implementation%20notes.txt)
+* [My development rantings](extras/Implementation%20notes.txt)
 * [Additional documentation](https://github.com/martin-eden/EmbeddedCpp-me_Ws2812b-Docs)
   (Datasheet, oscilloscope timings, sticky pins weirdness.)
 * [My other repositories](https://github.com/martin-eden/contents)
