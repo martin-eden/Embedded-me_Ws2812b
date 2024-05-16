@@ -2,12 +2,51 @@
 
 * gcc as effective manager: nops are optimized
 
-  Thank you Richard Stallman and ArduinoIDE guys for "-Os"
-  (optimize for size) default compiler option that removes
+  Default compiler option "-Os" (optimize for size) removes
   successive "nop"'s from "asm" code. Code is so tiny and
-  fast now!
+  fast now! LED stripe is not controlled but who cares?
 
-  LED stripe is not controlled but who cares?
+    Before, I was mitigating it by using "mov <r>, <r>" as
+    do-nothing instruction. Who is master and who is slave here?
+
+    Later I found great article at
+
+      https://programfan.github.io/blog/2015/04/27/prevent-gcc-optimize-away-code/
+
+    "__attribute__((optimize("O0")))" after function declaration will
+    compile it with no optimizations. Nops survive!
+
+    Another way to change optimization:
+
+       #pragma GCC push_options
+       #pragma GCC optimize("O0")
+       ...
+       #pragma GCC pop_options
+
+* Obsession with speed
+
+  GCC obsession with "performance" makes it wrong tool for low-level
+  programming.
+
+  Compiler "optimizer" sees no point in code like
+
+    for 1, 10
+      a = 1
+
+  Why do ten assignments to "a"? Why do assignment at all if "a" is not
+  used? Why not just paste "1" if "a" is used lately?
+
+  That's all cool and fun in compilers game benchmarks but..
+
+  But can I write program that actually does ten same assignments
+  in glorious Richard Stallman's GCC? How simple it would be?
+
+  Why? Question here is not why.
+  Question here is: "Can your compiler do this?".
+
+  So two practical problem areas with this sneaky code mangling are:
+    * Hardware benchmarks
+    * Memory-mapped devices
 
 * AVR gasm shooting his foot
 
