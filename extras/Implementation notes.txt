@@ -111,11 +111,6 @@ In my custom case the format for inlined asm code is
 
       Usage scenario is that constant is defined at higher level of code.
 
-  /*
-    My version of gasm does not check that register is not used by
-    "x", "y" or "z" couple. So "l" and "a" are used to avoid r26 .. r31.
-  */
-
 
 # EmitBytes(): design and implementation thoughts
 
@@ -128,38 +123,22 @@ In my custom case the format for inlined asm code is
         if 1
           High(); Wait_ns(900); Low(); Wait_ns(350);
 
-    4 tacts on 16 MHz == 250 ns
+    First, there is no nanoseconds delay function. Just not possible.
+    Subroutine call that writes 2 registers takes 900 ns.
 
-    So one-tact instruction takes 62.5 ns.
+    Second, compiler code for "for"'s and "if"'s will add more
+    time.
 
-    6 tacts == 375 ns
+    But I think, even naive implementation might work.
 
-    We can't have nanoseconds-delay function.
+    According to my observations WS2812B controller, it
+      * just triggers on HIGH,
+      * waits 600 ns,
+      * reads line as bit value and
+      * disarmed until line is LOW.
 
-      1000 ns is just 16 instructions (or less). Overhead of calling
-      function with word argument most likely be near that 1000 ns.
-
-      For delays over 1000 ns we have delayMicroseconds().
-
-      We can use macro tho.
-
-        Macros are ugly but that's the only viable option if we
-        want to avoid assembly.
-
-    We have no instruction-level control in C (or any other "high-level"
-    language). Generating code for if's and for for's is compiler's job.
-
-    So for naive implementation inter-bit and inter-byte delays most likely
-    will be over 350 ns. Out of spec.
-
-      I think the actual parser in WS2812B
-        just triggers on HIGH,
-        waits 600 ns,
-        reads line as value and
-        disarmed until line is LOW.
-
-      So naive implementation _may_ work. But meh, it's out of spec
-      and underactuated.
+    So naive implementation _may_ work. But meh, it's out of spec
+    and underactuated.
 
   2. Chill windows
 
@@ -201,11 +180,11 @@ In my custom case the format for inlined asm code is
       Higher clock speeds will increase expansion factor.
 
     But it's paramount in performance. No comparisons, no jumps.
-    8 MBits pedal-to-metal.
+    5 MBits pedal-to-metal.
 
   3.2 Prepare intermediate code
 
-    Can we encode switches and waits in artificial instructions
+    Can we encode bit flips and waits in artificial instructions
     and interpret them fast?
 
     We can, but it will expand memory again. Let's not create additional
