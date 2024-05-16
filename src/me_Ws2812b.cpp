@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2024-05-06
+  Last mod.: 2024-05-16
 */
 
 /*
@@ -127,10 +127,9 @@ TBool SendBytes(TBytes Bytes, TUint_2 Length, TUint_1 Pin)
 TBool EmitBytes(TBytes Bytes, TUint_2 Length, TUint_1 Pin)
 {
   TUint_2 PortAddress;
-  TUint_1 PortAndMask;
   TUint_1 PortOrMask;
 
-  // Populate <PortAddress>, <PortAndMask> and <PortOrMask> from <Pin>
+  // Populate <PortAddress> and <PortOrMask> from <Pin>
   {
     TUint_1 PortBit;
 
@@ -144,7 +143,6 @@ TBool EmitBytes(TBytes Bytes, TUint_2 Length, TUint_1 Pin)
     }
 
     PortOrMask = (1 << PortBit);
-    PortAndMask = ~PortOrMask;
   }
 
   TUint_1 DataByte;
@@ -223,7 +221,7 @@ TBool EmitBytes(TBytes Bytes, TUint_2 Length, TUint_1 Pin)
     IsZero:
 
       # Output LOW
-      and %[PortValue], %[PortAndMask]
+      eor %[PortValue], %[PortOrMask]
       st %a[PortAddress], %[PortValue]
 
       nop
@@ -252,7 +250,7 @@ TBool EmitBytes(TBytes Bytes, TUint_2 Length, TUint_1 Pin)
       nop
 
       # Output LOW
-      and %[PortValue], %[PortAndMask]
+      eor %[PortValue], %[PortOrMask]
       st %a[PortAddress], %[PortValue]
 
       dec %[BitCounter]
@@ -276,7 +274,6 @@ TBool EmitBytes(TBytes Bytes, TUint_2 Length, TUint_1 Pin)
     :
     // Pointer to port address
     [PortAddress] "z" (PortAddress),
-    [PortAndMask] "la" (PortAndMask),
     [PortOrMask] "a" (PortOrMask),
     // Pointer to byte array in some auto-incremented register
     [Bytes] "x" (Bytes)
