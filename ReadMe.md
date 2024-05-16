@@ -39,6 +39,7 @@ Code is readable.
 
 * [Interface](src/me_Ws2812b.h)
 * [Implementation](src/me_Ws2812b.cpp)
+* [My development rantings](extras/Implementation%20notes.txt)
 
 # Other people implementations
 
