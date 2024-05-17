@@ -4,16 +4,14 @@
   Board: Arduino Uno
 
   Author: Martin Eden
-  Last mod.: 2024-05-16
+  Last mod.: 2024-05-17
 */
 
 #include <me_Ws2812b.h>
 
 #include <me_UartSpeeds.h>
 #include <me_InstallStandardStreams.h>
-
-#include <me_Math.h> // deg to rad
-
+#include <me_ConvertUnits_Angle.h>
 #include <me_Types.h>
 
 // --
@@ -51,11 +49,11 @@ using namespace me_Ws2812b;
 */
 void Test_WhiteSine(TUint_2 NumPixels, TUint_1 OutputPin)
 {
+  using namespace me_ConvertUnits_Angle;
+
   TPixel Pixels[NumPixels];
 
   static TUint_2 BaseAngle_Deg = 0;
-  const TUint_1 BaseAngleShift_Deg = 1;
-  const TUint_1 AngleIncrement_Deg = 6;
 
   TUint_2 Angle_Deg = BaseAngle_Deg;
 
@@ -87,10 +85,16 @@ void Test_WhiteSine(TUint_2 NumPixels, TUint_1 OutputPin)
         .Blue = EtherValue,
       };
 
-    Angle_Deg = (Angle_Deg + AngleIncrement_Deg) % 360;
+    const TUint_1 AngleIncrement_Deg = 12;
+
+    Angle_Deg += AngleIncrement_Deg;
+    Angle_Deg = NormalizeDeg(Angle_Deg);
   }
 
-  BaseAngle_Deg = (BaseAngle_Deg + BaseAngleShift_Deg) % 360;
+  const TUint_1 BaseAngleShift_Deg = 1;
+
+  BaseAngle_Deg += BaseAngleShift_Deg;
+  BaseAngle_Deg = NormalizeDeg(BaseAngle_Deg);
 
   SendPixels(Pixels, NumPixels, OutputPin);
 }
