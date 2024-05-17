@@ -220,7 +220,7 @@ TBool EmitBytes(TBytes Bytes, TUint_2 Length, TUint_1 Pin)
 
     IsZero:
 
-      # Output LOW
+      # Flip to LOW
       eor %[PortValue], %[PortOrMask]
       st %a[PortAddress], %[PortValue]
 
@@ -249,7 +249,7 @@ TBool EmitBytes(TBytes Bytes, TUint_2 Length, TUint_1 Pin)
       nop
       nop
 
-      # Output LOW
+      # Flip to LOW
       eor %[PortValue], %[PortOrMask]
       st %a[PortAddress], %[PortValue]
 
