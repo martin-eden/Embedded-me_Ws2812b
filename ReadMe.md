@@ -48,7 +48,7 @@ Main issue there is bad design. It's unlimited. They are trying to write
 multi-platform code in C lol. And they are putting all the fancy
 color manipulation routines in their libraries. Neverending projects.
 
-More importantly, you can't change LED output pin at runtime there.
+More important, you can't change LED output pin at runtime there.
 
 * [FastLED](https://github.com/FastLED/FastLED)
 * [Adafruit NeoPixel](https://github.com/adafruit/Adafruit_NeoPixel)
