@@ -17,18 +17,20 @@ C. Assembler. Standalone implementation. GPL3.
 ...
 using namespace me_Ws2812b;
 
-TPixel TestPixels[] =
+TPixel Pixels[] =
   {
     { .Green = 0xFF, .Red = 0, .Blue = 0 },
     { .Green = 0, .Red = 0xFF, .Blue = 0 },
     { .Green = 0, .Red = 0, .Blue = 0xFF },
   };
 
-SendPixels(
-  TestPixels,
-  sizeof(TestPixels) / sizeof(TPixel),
-  A0
-);
+TLedStripeState State;
+
+State.Pixels = Pixels;
+State.Length = sizeof(Pixels) / sizeof(TPixel);
+State.Pin = A0;
+
+SetLedStripeState(State);
 ```
 
 See [examples](examples) for real code.
