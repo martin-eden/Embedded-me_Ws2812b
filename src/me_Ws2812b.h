@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2024-05-06
+  Last mod.: 2024-05-18
 */
 
 /*
@@ -26,10 +26,12 @@
 
 #pragma once
 
-#include <me_Types.h>
+#include <me_BaseTypes.h>
 
 namespace me_Ws2812b
 {
+  using namespace me_BaseTypes;
+
   struct TPixel
   {
     TUint_1 Green;
@@ -37,10 +39,18 @@ namespace me_Ws2812b
     TUint_1 Blue;
   };
 
-  TBool SendPixels(TPixel Pixels[], TUint_2 Length, TUint_1 Pin);
+  struct TLedStripeState
+  {
+    TPixel * Pixels;
+    TUint_2 Length;
+    TUint_1 Pin;
+  };
+
+  TBool SetLedStripeState(TLedStripeState State);
 }
 
 /*
   2024-03 Core
   2023-05 Cleanup
+  2023-05-18 TLedStripeState instead of three constant arguments
 */

@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2024-05-16
+  Last mod.: 2024-05-18
 */
 
 /*
@@ -42,81 +42,64 @@
 
 #include <stdio.h> // printf()
 #include <Arduino.h> // delayMicroseconds()
-#include <me_ArduinoUno.h> // PinToIoRegisterAndBit()
+
+#include <me_UnoAddresses.h> // GetPinAddress_Bits()
+#include <me_MemorySegment.h>
+#include <me_MemoryPoint.h>
+#include <me_BaseTypes.h>
+
+using namespace me_Ws2812b;
+using namespace me_MemorySegment;
+using namespace me_MemoryPoint;
+using namespace me_BaseTypes;
 
 // Forwards:
-TBool SendBytes(TBytes Bytes, TUint_2 Length, TUint_1 Pin);
-TBool EmitBytes(TBytes Bytes, TUint_2 Length, TUint_1 Pin)
+TBool EmitBytes(TMemorySegment Data, TUint_1 Pin)
   __attribute__ ((optimize("O0")));
 //
 
 /*
-  Send array of pixels to given pin
+  Set stripe to given state.
 
-    Length should be less than 21 K.
-
-      (Maximum addressable memory is 64 KiB. Each pixel is 3 bytes.)
-
-      Uno has just 2 KiB memory which is less than 700 pixels.
+  Number of pixels, their colors and output pin -
+  all described in state.
 */
-TBool me_Ws2812b::SendPixels(TPixel Pixels[], TUint_2 Length, TUint_1 Pin)
+TBool me_Ws2812b::SetLedStripeState(TLedStripeState State)
 {
-  // Assert that <Pixels> size is less than 64KiB
+  TUint_2 PixMemSize; // length of memory segment with pixels data
+
+  // Set <PixMemSize>
   {
     const TUint_2 MaxPixelsLength = 0xFFFF / sizeof(TPixel);
 
-    if (Length > MaxPixelsLength)
+    if (State.Length > MaxPixelsLength)
     {
       printf(
-        "SendPixels(): <Length> is %u and is too long. Max value is %u.\n",
-        Length,
+        "Send(): <.Length> is %u and is too long. Max value is %u.\n",
+        State.Length,
         MaxPixelsLength
       );
       return false;
     }
+
+    PixMemSize = State.Length * sizeof(TPixel);
   }
-
-  // Send pixels as bytes
-  {
-    TBytes* Bytes = (TBytes*) Pixels;
-    TUint_2 BytesLength = Length * sizeof(TPixel);
-
-    return SendBytes(*Bytes, BytesLength, Pin);
-  }
-}
-
-/*
-  Send array of bytes to given pin
-
-    Length is trimmed to multiple of three.
-
-      Don't wish to deviate from spec without need.
-*/
-TBool SendBytes(TBytes Bytes, TUint_2 Length, TUint_1 Pin)
-{
-  // Trim <Length> to a multiple of three
-  Length = Length - (Length % 3);
 
   // Prepare for transmission
-  {
-    pinMode(Pin, OUTPUT);
-    digitalWrite(Pin, LOW);
-  }
+  pinMode(State.Pin, OUTPUT);
+  digitalWrite(State.Pin, LOW);
 
-  TBool Result = true;
+  // Transmission
+  TMemorySegment DataSeg;
 
-  // Transmit
-  if (Length > 0)
-  {
-    Result = EmitBytes(Bytes, Length, Pin);
-  }
+  DataSeg.Start = (TMemoryPoint) State.Pixels;
+  DataSeg.Size = PixMemSize;
 
-  // End transmission
-  {
-    // Send reset - keep LOW for 50+ us
-    const TUint_2 LatchDuration_us = 50;
-    delayMicroseconds(LatchDuration_us);
-  }
+  TBool Result = EmitBytes(DataSeg, State.Pin);
+
+  // End transmission: send reset - keep LOW for 50+ us
+  const TUint_2 LatchDuration_us = 50;
+  delayMicroseconds(LatchDuration_us);
 
   return Result;
 }
@@ -124,17 +107,16 @@ TBool SendBytes(TBytes Bytes, TUint_2 Length, TUint_1 Pin)
 /*
   Meat function for emitting bytes at 800 kBits
 */
-TBool EmitBytes(TBytes Bytes, TUint_2 Length, TUint_1 Pin)
+TBool EmitBytes(TMemorySegment Data, TUint_1 Pin)
 {
+  // Populate <PortAddress> and <PortOrMask> from <Pin>
   TUint_2 PortAddress;
   TUint_1 PortOrMask;
-
-  // Populate <PortAddress> and <PortOrMask> from <Pin>
   {
-    TUint_1 PortBit;
+    TMemoryPoint_Bits PinAddress;
 
     TBool IsOk =
-      me_ArduinoUno::PinToAddressAndBit(Pin, &PortAddress, &PortBit);
+      me_UnoAddresses::GetPinAddress_Bits(&PinAddress, Pin);
 
     if (!IsOk)
     {
@@ -142,7 +124,8 @@ TBool EmitBytes(TBytes Bytes, TUint_2 Length, TUint_1 Pin)
       return false;
     }
 
-    PortOrMask = (1 << PortBit);
+    PortAddress = PinAddress.Base;
+    PortOrMask = (1 << PinAddress.BitOffs);
   }
 
   TUint_1 DataByte;
@@ -267,7 +250,7 @@ TBool EmitBytes(TBytes Bytes, TUint_2 Length, TUint_1 Pin)
     )"
     :
     // temporary memory
-    [RemainedLength] "+w" (Length),
+    [RemainedLength] "+w" (Data.Size),
     [DataByte] "=la" (DataByte),
     [PortValue] "=a" (PortValue),
     [BitCounter] "=a" (BitCounter)
@@ -276,7 +259,7 @@ TBool EmitBytes(TBytes Bytes, TUint_2 Length, TUint_1 Pin)
     [PortAddress] "z" (PortAddress),
     [PortOrMask] "a" (PortOrMask),
     // Pointer to byte array in some auto-incremented register
-    [Bytes] "x" (Bytes)
+    [Bytes] "x" (Data.Start)
   );
 
   SREG = OrigSreg;
