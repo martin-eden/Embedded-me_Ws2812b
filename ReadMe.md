@@ -1,5 +1,7 @@
 # What
 
+(2024-03 .. 2024-05)
+
 Arduino library to control LED stripe.
 
 My journey to the land of microcontrollers programming and back.
@@ -9,6 +11,22 @@ There are some dragons.
 
 Arduino. AVR. ATmega328/P. 16 MHz. RGB LED stripe. WS2812B. Function.
 C. Assembler. Standalone implementation. GPL3.
+
+## Requirements
+
+  * arduino-cli
+  * bash
+
+
+## Install
+
+Run [Install.sh](Install.sh).
+
+
+## Remove
+
+Run [Remove.sh](Remove.sh).
+
 
 # How
 
@@ -35,12 +53,14 @@ SetLedStripeState(State);
 
 See [examples](examples) for real code.
 
+
 # Code
 
 Code is readable.
 
 * [Interface](src/me_Ws2812b.h)
 * [Implementation](src/me_Ws2812b.cpp)
+
 
 # Other people implementations
 
@@ -55,11 +75,10 @@ More important, you can't change LED output pin at runtime there.
 * [FastLED](https://github.com/FastLED/FastLED)
 * [Adafruit NeoPixel](https://github.com/adafruit/Adafruit_NeoPixel)
 
+
 # See also
 
 * [My development rantings](extras/Implementation%20notes.txt)
 * [Additional documentation](https://github.com/martin-eden/EmbeddedCpp-me_Ws2812b-Docs)
   (Datasheet, oscilloscope timings, sticky pins weirdness.)
 * [My other repositories](https://github.com/martin-eden/contents)
-
--- Martin, 2024-03 / 2024-05
