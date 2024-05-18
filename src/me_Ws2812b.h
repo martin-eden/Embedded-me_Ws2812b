@@ -6,22 +6,19 @@
 */
 
 /*
-  Send pixels
+  SetLedStripeState(State)
 
-    SendPixels
-      -<
-        Pixels[] : TPixel
-        Length : u2
-          Should be less than 21K.
-        OutputPin : u1
-      -> bool
+  State:
 
-  Pixel definition
+    Pixels[]
+    Length: ui2
+    Pin: ui1
 
-    TPixel
-      Green : ui1
-      Red : ui1
-      Blue : ui1
+  Pixel:
+
+    Green: ui1
+    Red: ui1
+    Blue: ui1
 */
 
 #pragma once
