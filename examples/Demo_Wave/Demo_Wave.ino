@@ -1,26 +1,26 @@
 // Demo of animation via [me_Ws2812b]
 
 /*
-  Board: Arduino Uno
-
   Author: Martin Eden
-  Last mod.: 2024-05-17
+  Last mod.: 2024-05-18
 */
 
 #include <me_Ws2812b.h>
 
+#include <me_ConvertUnits_Angle.h>
+
 #include <me_UartSpeeds.h>
 #include <me_InstallStandardStreams.h>
-#include <me_ConvertUnits_Angle.h>
-#include <me_Types.h>
+#include <me_BaseTypes.h>
 
-// --
+using namespace me_Ws2812b;
+using namespace me_BaseTypes;
 
 const TUint_1 LedStripePin = A0;
 const TUint_1 NumPixels = 60;
 
 // Forwards
-void Test_WhiteSine(TUint_2 NumPixels, TUint_1 OutputPin);
+void Test_WhiteSine();
 
 void setup()
 {
@@ -35,19 +35,15 @@ void setup()
 
 void loop()
 {
-  Test_WhiteSine(NumPixels, LedStripePin);
+  Test_WhiteSine();
 
   delay(20);
 }
 
-// --
-
-using namespace me_Ws2812b;
-
 /*
   Send rolling white sine wave.
 */
-void Test_WhiteSine(TUint_2 NumPixels, TUint_1 OutputPin)
+void Test_WhiteSine()
 {
   using namespace me_ConvertUnits_Angle;
 
@@ -96,7 +92,13 @@ void Test_WhiteSine(TUint_2 NumPixels, TUint_1 OutputPin)
   BaseAngle_Deg += BaseAngleShift_Deg;
   BaseAngle_Deg = NormalizeDeg(BaseAngle_Deg);
 
-  SendPixels(Pixels, NumPixels, OutputPin);
+  TLedStripeState State;
+
+  State.Pixels = Pixels;
+  State.Length = NumPixels;
+  State.Pin = LedStripePin;
+
+  SetLedStripeState(State);
 }
 
 /*

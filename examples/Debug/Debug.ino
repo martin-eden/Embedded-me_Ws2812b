@@ -1,23 +1,22 @@
 // Timings code for [me_Ws2812b] library. Use with oscilloscope.
 
 /*
-  Board: Arduino Uno
-
   Author: Martin Eden
-  Last mod.: 2024-05-16
+  Last mod.: 2024-05-18
 */
 
 #include <me_Ws2812b.h>
 
 #include <me_UartSpeeds.h>
 #include <me_InstallStandardStreams.h>
-#include <me_Types.h>
+#include <me_BaseTypes.h>
 
 using namespace me_Ws2812b;
+using namespace me_BaseTypes;
 
 // Forwards
 void Test_ObserveBitsTiming(TUint_1 OutputPin);
-void PrintPixels(TPixel Pixels[], TUint_2 NumPixels);
+void PrintPixels(TLedStripeState State);
 
 void setup()
 {
@@ -68,25 +67,29 @@ void Test_ObserveBitsTiming(TUint_1 OutputPin)
       },
     };
 
-  TUint_2 NumPixels = sizeof(Pixels) / sizeof(TPixel);
+  TLedStripeState StripeState;
 
-  SendPixels(Pixels, NumPixels, OutputPin);
+  StripeState.Pixels = Pixels;
+  StripeState.Length = sizeof(Pixels) / sizeof(TPixel);
+  StripeState.Pin = OutputPin;
 
-  printf("Output pin: %u\n", OutputPin);
-  PrintPixels(Pixels, NumPixels);
+  SetLedStripeState(StripeState);
+
+  PrintState(StripeState);
 }
 
 // Print pixel values to serial
-void PrintPixels(TPixel Pixels[], TUint_2 NumPixels)
+void PrintState(TLedStripeState State)
 {
-  for (TUint_2 PixelIdx = 0; PixelIdx < NumPixels; ++PixelIdx)
+  printf("Output pin: %u\n", State.Pin);
+  for (TUint_2 PixelIdx = 0; PixelIdx < State.Length; ++PixelIdx)
   {
     printf(
       "[%2u] (%02X %02X %02X)\n",
       PixelIdx,
-      Pixels[PixelIdx].Green,
-      Pixels[PixelIdx].Red,
-      Pixels[PixelIdx].Blue
+      State.Pixels[PixelIdx].Green,
+      State.Pixels[PixelIdx].Red,
+      State.Pixels[PixelIdx].Blue
     );
   }
 }
