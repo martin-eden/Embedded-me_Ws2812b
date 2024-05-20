@@ -2,15 +2,15 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2024-05-18
+  Last mod.: 2024-05-20
 */
 
 /*
-  SetLedStripeState(State)
+  bool SetLedStripeState(State)
 
   State:
 
-    Pixels[]
+    Pixels: *Pixel
     Length: ui2
     Pin: ui1
 
