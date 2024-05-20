@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2024-05-18
+  Last mod.: 2024-05-20
 */
 
 /*
@@ -92,7 +92,7 @@ TBool me_Ws2812b::SetLedStripeState(TLedStripeState State)
   // Transmission
   TMemorySegment DataSeg;
 
-  DataSeg.Start = (TMemoryPoint) State.Pixels;
+  DataSeg.Start.Addr = (TUint_2) State.Pixels;
   DataSeg.Size = PixMemSize;
 
   TBool Result = EmitBytes(DataSeg, State.Pin);
@@ -124,7 +124,7 @@ TBool EmitBytes(TMemorySegment Data, TUint_1 Pin)
       return false;
     }
 
-    PortAddress = PinAddress.Base;
+    PortAddress = PinAddress.Base.Addr;
     PortOrMask = (1 << PinAddress.BitOffs);
   }
 
@@ -259,7 +259,7 @@ TBool EmitBytes(TMemorySegment Data, TUint_1 Pin)
     [PortAddress] "z" (PortAddress),
     [PortOrMask] "a" (PortOrMask),
     // Pointer to byte array in some auto-incremented register
-    [Bytes] "x" (Data.Start)
+    [Bytes] "x" (Data.Start.Addr)
   );
 
   SREG = OrigSreg;
