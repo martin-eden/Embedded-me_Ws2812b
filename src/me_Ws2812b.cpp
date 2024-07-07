@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2024-05-20
+  Last mod.: 2024-07-07
 */
 
 /*
@@ -33,9 +33,9 @@
   Real world
 
     What really critical is the length of HIGH pulse for bit 0.
-    It should be less than 500 ns. Lengths of LOW strides can
-    be quite longer. So code execution overhead for data extraction
-    is not critical.
+    It should be less than 500 ns. Lengths of LOW tails can
+    be quite longer. So some additional inter-bit and inter-byte
+    time overhead is tolerable because it occurs at LOW times.
 */
 
 #include "me_Ws2812b.h"
@@ -167,9 +167,9 @@ TBool EmitBytes(TMemorySegment Data, TUint_1 Pin)
           We need output to specific pin. It means we need to write
           some bit at some byte address.
 
-          We have port address and bit number. We are creating bit masks
-          for OR and AND. Reading byte from port at beginning, then
-          OR-ing and writing back to set HIGH. AND-ing to set LOW.
+          We have port address and bit number. We are creating bit mask
+          with that bit set to 1. OR-ing with it will set pin to HIGH.
+          Next XOR-ing will set pin to LOW.
   */
   asm volatile
   (
