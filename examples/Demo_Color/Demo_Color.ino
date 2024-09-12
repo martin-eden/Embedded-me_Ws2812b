@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2024-05-17
+  Last mod.: 2024-09-12
 */
 
 #include <me_Ws2812b.h>
@@ -12,7 +12,6 @@
 #include <me_BaseTypes.h>
 
 using namespace me_Ws2812b;
-using namespace me_BaseTypes;
 
 const TUint_1 LedStripePin = A0;
 const TUint_1 NumPixels = 60;
@@ -27,10 +26,11 @@ void setup()
 
   InstallStandardStreams();
 
-  printf("[me_Ws2812b.Demo_Color]\n");
+  printf("[me_Ws2812b.Demo_Color] Hello there!\n");
   delay(500);
 
   Test_ColorSmoothing();
+  printf("[me_Ws2812b.Demo_Color] Done.\n");
 }
 
 void loop()

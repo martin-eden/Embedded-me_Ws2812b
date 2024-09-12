@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2024-07-07
+  Last mod.: 2024-09-12
 */
 
 /*
@@ -51,7 +51,6 @@
 using namespace me_Ws2812b;
 using namespace me_MemorySegment;
 using namespace me_MemoryPoint;
-using namespace me_BaseTypes;
 
 // Forwards:
 TBool EmitBytes(TMemorySegment Data, TUint_1 Pin)
