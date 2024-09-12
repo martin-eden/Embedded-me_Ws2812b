@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2024-05-20
+  Last mod.: 2024-09-12
 */
 
 /*
@@ -27,8 +27,6 @@
 
 namespace me_Ws2812b
 {
-  using namespace me_BaseTypes;
-
   struct TPixel
   {
     TUint_1 Green;

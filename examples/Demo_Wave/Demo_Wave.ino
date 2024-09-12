@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2024-05-18
+  Last mod.: 2024-09-12
 */
 
 #include <me_Ws2812b.h>
@@ -14,7 +14,6 @@
 #include <me_BaseTypes.h>
 
 using namespace me_Ws2812b;
-using namespace me_BaseTypes;
 
 const TUint_1 LedStripePin = A0;
 const TUint_1 NumPixels = 60;
@@ -29,8 +28,10 @@ void setup()
 
   InstallStandardStreams();
 
-  printf("[me_Ws2812b.Demo_Wave]\n");
+  printf("[me_Ws2812b.Demo_Wave] Hello there!\n");
   delay(500);
+
+  printf("It's infinite demo.\n");
 }
 
 void loop()
