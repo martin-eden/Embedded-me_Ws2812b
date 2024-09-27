@@ -4,13 +4,13 @@
 
 Arduino library to control LED stripe.
 
-My journey to the land of microcontrollers programming and back.
+My journey to the land of AVR assembly programming and back.
 There are some dragons.
 
 # Buzzwords description
 
 Arduino. AVR. ATmega328/P. 16 MHz. RGB LED stripe. WS2812B. Function.
-C. Assembler. Standalone implementation. GPL3.
+C. Assembler. GPL3.
 
 ## Requirements
 
