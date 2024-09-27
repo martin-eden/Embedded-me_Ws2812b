@@ -2,23 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2024-09-12
-*/
-
-/*
-  bool SetLedStripeState(State)
-
-  State:
-
-    Pixels: *Pixel
-    Length: ui2
-    Pin: ui1
-
-  Pixel:
-
-    Green: ui1
-    Red: ui1
-    Blue: ui1
+  Last mod.: 2024-09-27
 */
 
 #pragma once
@@ -27,6 +11,12 @@
 
 namespace me_Ws2812b
 {
+  /*
+    LED stripe pixel: Green, Red, Blue
+
+    Fields order G-R-B is important. Device expects color bytes
+    in that order.
+  */
   struct TPixel
   {
     TUint_1 Green;
@@ -34,6 +24,13 @@ namespace me_Ws2812b
     TUint_1 Blue;
   };
 
+  /*
+    LED stripe state:
+
+      * Pointer to pixels data
+      * Number of pixels
+      * Output pin
+  */
   struct TLedStripeState
   {
     TPixel * Pixels;
@@ -41,6 +38,7 @@ namespace me_Ws2812b
     TUint_1 Pin;
   };
 
+  // Apply state to stripe
   TBool SetLedStripeState(TLedStripeState State);
 }
 
