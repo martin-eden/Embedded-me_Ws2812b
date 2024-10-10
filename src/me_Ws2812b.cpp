@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2024-09-12
+  Last mod.: 2024-10-11
 */
 
 /*
@@ -126,6 +126,10 @@ TBool EmitBytes(TMemorySegment Data, TUint_1 Pin)
     PortAddress = PinAddress.Base.Addr;
     PortOrMask = (1 << PinAddress.BitOffs);
   }
+
+  // Zero size? Job done!
+  if (Data.Size == 0)
+    return true;
 
   TUint_1 DataByte;
   TUint_1 BitCounter;
