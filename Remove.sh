@@ -10,5 +10,4 @@ arduino-cli lib uninstall \
   me_ConvertUnits_Angle \
   me_UnoAddresses \
   me_MemorySegment \
-  me_MemoryPoint \
   me_BaseTypes
