@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2024-10-11
+  Last mod.: 2024-10-23
 */
 
 /*
@@ -45,12 +45,12 @@
 
 #include <me_UnoAddresses.h> // GetPinAddress_Bits()
 #include <me_MemorySegment.h>
-#include <me_MemoryPoint.h>
 #include <me_BaseTypes.h>
 
 using namespace me_Ws2812b;
-using namespace me_MemorySegment;
-using namespace me_MemoryPoint;
+
+using
+  me_MemorySegment::TMemorySegment;
 
 // Forwards:
 TBool EmitBytes(TMemorySegment Data, TUint_1 Pin)
@@ -63,7 +63,9 @@ TBool EmitBytes(TMemorySegment Data, TUint_1 Pin)
   Number of pixels, their colors and output pin -
   all described in state.
 */
-TBool me_Ws2812b::SetLedStripeState(TLedStripeState State)
+TBool me_Ws2812b::SetLedStripeState(
+  TLedStripeState State
+)
 {
   TUint_2 PixMemSize; // length of memory segment with pixels data
 
@@ -91,7 +93,7 @@ TBool me_Ws2812b::SetLedStripeState(TLedStripeState State)
   // Transmission
   TMemorySegment DataSeg;
 
-  DataSeg.Start.Addr = (TUint_2) State.Pixels;
+  DataSeg.Addr = (TUint_2) State.Pixels;
   DataSeg.Size = PixMemSize;
 
   TBool Result = EmitBytes(DataSeg, State.Pin);
@@ -106,16 +108,20 @@ TBool me_Ws2812b::SetLedStripeState(TLedStripeState State)
 /*
   Meat function for emitting bytes at 800 kBits
 */
-TBool EmitBytes(TMemorySegment Data, TUint_1 Pin)
+TBool EmitBytes(
+  TMemorySegment Data,
+  TUint_1 Pin
+)
 {
   // Populate <PortAddress> and <PortOrMask> from <Pin>
   TUint_2 PortAddress;
   TUint_1 PortOrMask;
   {
-    TMemoryPoint_Bits PinAddress;
+    TUint_2 PinAddress;
+    TUint_1 PinBit;
 
     TBool IsOk =
-      me_UnoAddresses::GetPinAddress_Bits(&PinAddress, Pin);
+      me_UnoAddresses::GetPinAddress(&PinAddress, &PinBit, Pin);
 
     if (!IsOk)
     {
@@ -123,8 +129,8 @@ TBool EmitBytes(TMemorySegment Data, TUint_1 Pin)
       return false;
     }
 
-    PortAddress = PinAddress.Base.Addr;
-    PortOrMask = (1 << PinAddress.BitOffs);
+    PortAddress = PinAddress;
+    PortOrMask = (1 << PinBit);
   }
 
   // Zero size? Job done!
@@ -262,7 +268,7 @@ TBool EmitBytes(TMemorySegment Data, TUint_1 Pin)
     [PortAddress] "z" (PortAddress),
     [PortOrMask] "a" (PortOrMask),
     // Pointer to byte array in some auto-incremented register
-    [Bytes] "x" (Data.Start.Addr)
+    [Bytes] "x" (Data.Addr)
   );
 
   SREG = OrigSreg;
