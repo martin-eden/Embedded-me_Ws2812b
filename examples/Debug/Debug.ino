@@ -2,46 +2,57 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2024-09-12
+  Last mod.: 2024-12-12
+*/
+
+/*
+  This code was used for observing actual signal with oscilloscope.
+
+  Not much demo potential. It emits same pattern to all sensible pins.
+  So once you connect your stripe it will lit and nothing will visibly
+  changed.
+
+  -- Martin, 2024-12-12
 */
 
 #include <me_Ws2812b.h>
 
-#include <me_UartSpeeds.h>
-#include <me_InstallStandardStreams.h>
 #include <me_BaseTypes.h>
+#include <me_Console.h>
+#include <me_Uart.h>
+#include <me_UartSpeeds.h>
 
-using namespace me_Ws2812b;
-
-// Forwards
-void Test_ObserveBitsTiming(TUint_1 OutputPin);
-void PrintPixels(TLedStripeState State);
-
-void setup()
+// Print pixel values to serial
+void PrintState(
+  me_Ws2812b::TLedStripeState State
+)
 {
-  Serial.begin(me_UartSpeeds::Arduino_Normal_Bps);
-  delay(500);
+  Console.Write("Output pin:");
+  Console.Print(State.Pin);
+  Console.EndLine();
 
-  InstallStandardStreams();
-
-  printf("[me_Ws2812b.Debug]\n");
-  delay(500);
-}
-
-void loop()
-{
-  for (TUint_1 OutputPin = A0; OutputPin <= A4; ++OutputPin)
+  for (TUint_2 PixelIdx = 0; PixelIdx < State.Length; ++PixelIdx)
   {
-    Test_ObserveBitsTiming(OutputPin);
-    delay(500);
+    Console.Print(PixelIdx);
+    Console.Print(State.Pixels[PixelIdx].Green);
+    Console.Print(State.Pixels[PixelIdx].Red);
+    Console.Print(State.Pixels[PixelIdx].Blue);
+    Console.EndLine();
   }
 }
 
 /*
   Send several specific values to check timing margins with oscilloscope.
 */
-void Test_ObserveBitsTiming(TUint_1 OutputPin)
+void Test_ObserveBitsTiming(
+  TUint_1 OutputPin
+)
 {
+  using
+    me_Ws2812b::TPixel,
+    me_Ws2812b::TLedStripeState,
+    me_Ws2812b::SetLedStripeState;
+
   /*
     I want to see timings between bits. And between bytes.
 
@@ -77,19 +88,21 @@ void Test_ObserveBitsTiming(TUint_1 OutputPin)
   PrintState(StripeState);
 }
 
-// Print pixel values to serial
-void PrintState(TLedStripeState State)
+// --
+
+void setup()
 {
-  printf("Output pin: %u\n", State.Pin);
-  for (TUint_2 PixelIdx = 0; PixelIdx < State.Length; ++PixelIdx)
+  me_Uart::Init(me_UartSpeeds::Bps_115k);
+
+  Console.Print("[me_Ws2812b.Debug]");
+}
+
+void loop()
+{
+  for (TUint_1 OutputPin = 2; OutputPin <= A5; ++OutputPin)
   {
-    printf(
-      "[%2u] (%02X %02X %02X)\n",
-      PixelIdx,
-      State.Pixels[PixelIdx].Green,
-      State.Pixels[PixelIdx].Red,
-      State.Pixels[PixelIdx].Blue
-    );
+    Test_ObserveBitsTiming(OutputPin);
+    delay(500);
   }
 }
 
@@ -97,4 +110,5 @@ void PrintState(TLedStripeState State)
   2024-03
   2024-04
   2024-05
+  2024-12-12
 */

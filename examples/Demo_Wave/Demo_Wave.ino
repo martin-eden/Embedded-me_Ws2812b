@@ -2,20 +2,18 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2024-09-12
+  Last mod.: 2024-12-12
 */
 
 #include <me_Ws2812b.h>
 
+#include <me_BaseTypes.h>
+#include <me_Uart.h>
+#include <me_UartSpeeds.h>
+#include <me_Console.h>
 #include <me_ConvertUnits_Angle.h>
 
-#include <me_UartSpeeds.h>
-#include <me_InstallStandardStreams.h>
-#include <me_BaseTypes.h>
-
-using namespace me_Ws2812b;
-
-const TUint_1 LedStripePin = A0;
+const TUint_1 LedStripePin = 2;
 const TUint_1 NumPixels = 60;
 
 // Forwards
@@ -23,15 +21,11 @@ void Test_WhiteSine();
 
 void setup()
 {
-  Serial.begin(me_UartSpeeds::Arduino_Normal_Bps);
-  delay(500);
+  me_Uart::Init(me_UartSpeeds::Bps_115k);
 
-  InstallStandardStreams();
+  Console.Print("[me_Ws2812b.Demo_Wave] Hello there!");
 
-  printf("[me_Ws2812b.Demo_Wave] Hello there!\n");
-  delay(500);
-
-  printf("It's infinite demo.\n");
+  Console.Print("It's infinite demo.");
 }
 
 void loop()
@@ -46,7 +40,12 @@ void loop()
 */
 void Test_WhiteSine()
 {
-  using namespace me_ConvertUnits_Angle;
+  using
+    me_ConvertUnits_Angle::DegToRad,
+    me_ConvertUnits_Angle::NormalizeDeg,
+    me_Ws2812b::TPixel,
+    me_Ws2812b::TLedStripeState,
+    me_Ws2812b::SetLedStripeState;
 
   TPixel Pixels[NumPixels];
 
@@ -58,7 +57,8 @@ void Test_WhiteSine()
   {
     const TUint_1
       ByteFloor = 0,
-      ByteCeil = 120;
+      ByteCeil = 120,
+      AngleIncrement_Deg = 12;
 
     // Map sine range [-1, 1] to byte range [0, 255]:
     TUint_1 ByteSine = (sin(DegToRad(Angle_Deg)) + 1) / 2 * 255;
@@ -66,23 +66,12 @@ void Test_WhiteSine()
     // Map byte to floor-ceiling range:
     TUint_1 EtherValue = map(ByteSine, 0, 255, ByteFloor, ByteCeil);
 
-    /*
-    printf(
-      "Angle: %3u, ByteSine: %3u, Ether: %3u\n",
-      Angle_Deg,
-      ByteSine,
-      EtherValue
-    );
-    */
-
     Pixels[PixelIdx] =
       {
         .Green = EtherValue,
         .Red = EtherValue,
         .Blue = EtherValue,
       };
-
-    const TUint_1 AngleIncrement_Deg = 12;
 
     Angle_Deg += AngleIncrement_Deg;
     Angle_Deg = NormalizeDeg(Angle_Deg);
@@ -106,4 +95,5 @@ void Test_WhiteSine()
   2024-03
   2024-04
   2024-05
+  2024-12
 */

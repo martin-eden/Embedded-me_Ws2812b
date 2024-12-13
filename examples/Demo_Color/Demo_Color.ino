@@ -2,39 +2,54 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2024-09-12
+  Last mod.: 2024-12-12
 */
 
 #include <me_Ws2812b.h>
 
-#include <me_UartSpeeds.h>
-#include <me_InstallStandardStreams.h>
 #include <me_BaseTypes.h>
+#include <me_Console.h>
+#include <me_Uart.h>
+#include <me_UartSpeeds.h>
 
-using namespace me_Ws2812b;
-
-const TUint_1 LedStripePin = A0;
+const TUint_1 LedStripePin = 2;
 const TUint_1 NumPixels = 60;
 
-// Forwards
-void Test_ColorSmoothing();
-
-void setup()
+/*
+  Linearly interpolate index between 0 and (<NumValues> - 1)
+  to range between <StartValue> and <EndValue>.
+*/
+TUint_1 MapIndex(
+  TUint_1 Index,
+  TUint_2 NumValues,
+  TUint_1 StartValue,
+  TUint_1 EndValue
+)
 {
-  Serial.begin(me_UartSpeeds::Arduino_Normal_Bps);
-  delay(500);
-
-  InstallStandardStreams();
-
-  printf("[me_Ws2812b.Demo_Color] Hello there!\n");
-  delay(500);
-
-  Test_ColorSmoothing();
-  printf("[me_Ws2812b.Demo_Color] Done.\n");
+  return map(Index, 0, NumValues - 1, StartValue, EndValue);
 }
 
-void loop()
+/*
+  Interpolate color between <StartColor> and <EndColor> for
+  <NumPixels> datapoints.
+*/
+me_Ws2812b::TPixel MapColor(
+  TUint_1 PixelIdx,
+  TUint_2 NumPixels,
+  me_Ws2812b::TPixel StartColor,
+  me_Ws2812b::TPixel EndColor
+)
 {
+  me_Ws2812b::TPixel Result;
+
+  Result.Red =
+    MapIndex(PixelIdx, NumPixels, StartColor.Red, EndColor.Red);
+  Result.Green =
+    MapIndex(PixelIdx, NumPixels, StartColor.Green, EndColor.Green);
+  Result.Blue =
+    MapIndex(PixelIdx, NumPixels, StartColor.Blue, EndColor.Blue);
+
+  return Result;
 }
 
 /*
@@ -42,6 +57,11 @@ void loop()
 */
 void Test_ColorSmoothing()
 {
+  using
+    me_Ws2812b::TPixel,
+    me_Ws2812b::TLedStripeState,
+    me_Ws2812b::SetLedStripeState;
+
   const TPixel StartColor = { .Green = 255, .Red = 96, .Blue = 0, };
   const TPixel EndColor = { .Green = 32, .Red = 64, .Blue = 64, };
 
@@ -59,45 +79,26 @@ void Test_ColorSmoothing()
   SetLedStripeState(State);
 }
 
-/*
-  Interpolate color between <StartColor> and <EndColor> for
-  <NumPixels> datapoints.
-*/
-TPixel MapColor(
-  TUint_1 PixelIdx,
-  TUint_2 NumPixels,
-  TPixel StartColor,
-  TPixel EndColor
-)
+//
+
+void setup()
 {
-  TPixel Result;
+  me_Uart::Init(me_UartSpeeds::Bps_115k);
 
-  Result.Red =
-    MapIndex(PixelIdx, NumPixels, StartColor.Red, EndColor.Red);
-  Result.Green =
-    MapIndex(PixelIdx, NumPixels, StartColor.Green, EndColor.Green);
-  Result.Blue =
-    MapIndex(PixelIdx, NumPixels, StartColor.Blue, EndColor.Blue);
+  Console.Print("[me_Ws2812b.Demo_Color] Hello there!");
 
-  return Result;
+  Test_ColorSmoothing();
+
+  Console.Print("[me_Ws2812b.Demo_Color] Done.");
 }
 
-/*
-  Linearly interpolate index between 0 and (<NumValues> - 1)
-  to range between <StartValue> and <EndValue>.
-*/
-TUint_1 MapIndex(
-  TUint_1 Index,
-  TUint_2 NumValues,
-  TUint_1 StartValue,
-  TUint_1 EndValue
-)
+void loop()
 {
-  return map(Index, 0, NumValues - 1, StartValue, EndValue);
 }
 
 /*
   2024-03
   2024-04
   2024-05
+  2024-12
 */
