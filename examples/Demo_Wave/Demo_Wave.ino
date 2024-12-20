@@ -2,14 +2,13 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2024-12-12
+  Last mod.: 2024-12-20
 */
 
 #include <me_Ws2812b.h>
 
 #include <me_BaseTypes.h>
 #include <me_Uart.h>
-#include <me_UartSpeeds.h>
 #include <me_Console.h>
 #include <me_ConvertUnits_Angle.h>
 
@@ -21,7 +20,7 @@ void Test_WhiteSine();
 
 void setup()
 {
-  me_Uart::Init(me_UartSpeeds::Bps_115k);
+  me_Uart::Init(me_Uart::Speed_115k_Bps);
 
   Console.Print("[me_Ws2812b.Demo_Wave] Hello there!");
 
