@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2024-10-23
+  Last mod.: 2024-12-20
 */
 
 /*
@@ -38,14 +38,13 @@
     time overhead is tolerable because it occurs at LOW times.
 */
 
-#include "me_Ws2812b.h"
+#include <me_Ws2812b.h>
 
-#include <stdio.h> // printf()
-#include <Arduino.h> // delayMicroseconds()
-
-#include <me_UnoAddresses.h> // GetPinAddress_Bits()
-#include <me_MemorySegment.h>
 #include <me_BaseTypes.h>
+#include <me_MemorySegment.h>
+#include <me_UnoAddresses.h> // GetPinAddress_Bits()
+
+#include <Arduino.h> // delayMicroseconds()
 
 using namespace me_Ws2812b;
 
@@ -74,14 +73,7 @@ TBool me_Ws2812b::SetLedStripeState(
     const TUint_2 MaxPixelsLength = 0xFFFF / sizeof(TPixel);
 
     if (State.Length > MaxPixelsLength)
-    {
-      printf(
-        "Send(): <.Length> is %u and is too long. Max value is %u.\n",
-        State.Length,
-        MaxPixelsLength
-      );
       return false;
-    }
 
     PixMemSize = State.Length * sizeof(TPixel);
   }
@@ -124,10 +116,7 @@ TBool EmitBytes(
       me_UnoAddresses::GetPinAddress(&PinAddress, &PinBit, Pin);
 
     if (!IsOk)
-    {
-      printf("me_Ws2812b: Can't figure out port address for pin %d.\n", Pin);
       return false;
-    }
 
     PortAddress = PinAddress;
     PortOrMask = (1 << PinBit);
@@ -280,4 +269,5 @@ TBool EmitBytes(
   2024-03 Core
   2024-04 Cleanup
   2024-05 Core change to support variable pins
+  2024-12-20
 */
