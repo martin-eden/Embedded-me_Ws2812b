@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2024-12-20
+  Last mod.: 2025-08-22
 */
 
 /*
@@ -18,8 +18,8 @@
 #include <me_Ws2812b.h>
 
 #include <me_BaseTypes.h>
-#include <me_Uart.h>
 #include <me_Console.h>
+#include <me_Delays.h>
 
 // Print pixel values to serial
 void PrintState(
@@ -91,7 +91,7 @@ void Test_ObserveBitsTiming(
 
 void setup()
 {
-  me_Uart::Init(me_Uart::Speed_115k_Bps);
+  Console.Init();
 
   Console.Print("[me_Ws2812b.Debug]");
 }
@@ -101,13 +101,11 @@ void loop()
   for (TUint_1 OutputPin = 2; OutputPin <= A5; ++OutputPin)
   {
     Test_ObserveBitsTiming(OutputPin);
-    delay(500);
+    me_Delays::Delay_Ms(500);
   }
 }
 
 /*
-  2024-03
-  2024-04
-  2024-05
-  2024-12-12
+  2024 # # # #
+  2025-08-22
 */
