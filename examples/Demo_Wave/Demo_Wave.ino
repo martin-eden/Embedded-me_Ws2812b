@@ -2,37 +2,18 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2024-12-20
+  Last mod.: 2025-08-22
 */
 
 #include <me_Ws2812b.h>
 
 #include <me_BaseTypes.h>
-#include <me_Uart.h>
 #include <me_Console.h>
 #include <me_ConvertUnits_Angle.h>
+#include <me_Delays.h>
 
 const TUint_1 LedStripePin = 2;
 const TUint_1 NumPixels = 60;
-
-// Forwards
-void Test_WhiteSine();
-
-void setup()
-{
-  me_Uart::Init(me_Uart::Speed_115k_Bps);
-
-  Console.Print("[me_Ws2812b.Demo_Wave] Hello there!");
-
-  Console.Print("It's infinite demo.");
-}
-
-void loop()
-{
-  Test_WhiteSine();
-
-  delay(20);
-}
 
 /*
   Send rolling white sine wave.
@@ -90,9 +71,21 @@ void Test_WhiteSine()
   SetLedStripeState(State);
 }
 
+void setup()
+{
+  Console.Init();
+
+  Console.Print("[me_Ws2812b.Demo_Wave] Infinite demo/test for RGB LED");
+}
+
+void loop()
+{
+  Test_WhiteSine();
+
+  me_Delays::Delay_Ms(20);
+}
+
 /*
-  2024-03
-  2024-04
-  2024-05
-  2024-12
+  2024 # # # #
+  2025-08-22
 */
