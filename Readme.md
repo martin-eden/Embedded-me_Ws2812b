@@ -7,10 +7,12 @@ Arduino library to control LED stripe.
 My journey to the land of AVR assembly programming and back.
 There are some dragons.
 
-# Buzzwords description
+
+## Buzzwords description
 
 Arduino. AVR. ATmega328/P. 16 MHz. RGB LED stripe. WS2812B. Function.
-C. Assembler. GPL3.
+C. Assembler. LGPL3.
+
 
 ## How
 
@@ -35,16 +37,14 @@ State.Pin = A0;
 SetLedStripeState(State);
 ```
 
-See [examples](examples) for real code.
-
-
 ## Code
 
 Code is readable.
 
 * [Interface](src/me_Ws2812b.h)
+* [Examples](examples)
 * [Implementation](src/me_Ws2812b.cpp)
-
+* [Notes][Notes]
 
 ## Other people implementations
 
@@ -78,12 +78,18 @@ Run shell scripts from there to get all my stuff, including this.
 
 ## See also
 
-* [My development rantings](extras/Implementation%20notes.txt)
-* [Additional documentation](https://github.com/martin-eden/EmbeddedCpp-me_Ws2812b-Docs)
-  (Datasheet, oscilloscope timings, sticky pins weirdness.)
-* [My other embedded C++ stuff][Embedded]
+* [Additional documentation][Docs] -- Datasheet, oscilloscope timings,
+  sticky pins weirdness
+* [My other embedded C++ libraries][Embedded]
 * [My other repositories][Repos]
 
+[Interface]: src/me_Ws2812b.h
+[Examples]: examples/
+[Implementation]: src/me_Ws2812b.cpp
+[Notes]: extras/Implementation%20notes.txt
+[Docs]: https://github.com/martin-eden/EmbeddedCpp-me_Ws2812b-Docs
+
 [GetLibs]: https://github.com/martin-eden/Embedded-Framework-GetLibs
+
 [Embedded]: https://github.com/martin-eden/Embedded_Crafts
 [Repos]: https://github.com/martin-eden/contents
