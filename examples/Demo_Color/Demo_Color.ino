@@ -2,16 +2,19 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2024-12-20
+  Last mod.: 2025-08-22
 */
 
 #include <me_Ws2812b.h>
 
 #include <me_BaseTypes.h>
-#include <me_Uart.h>
 #include <me_Console.h>
+#include <me_Delays.h>
 
+// Output pin
 const TUint_1 LedStripePin = 2;
+
+// Number of pixels in stripe
 const TUint_1 NumPixels = 60;
 
 /*
@@ -52,6 +55,29 @@ me_Ws2812b::TPixel MapColor(
 }
 
 /*
+  Blank LED stripe
+
+  Lights off all LEDs. Used for testing.
+*/
+void BlankLedStripe()
+{
+  const me_Ws2812b::TPixel BlankColor = { 0, 0, 0 };
+
+  me_Ws2812b::TPixel Pixels[NumPixels];
+
+  for (TUint_1 PixelIdx = 0; PixelIdx < NumPixels; ++PixelIdx)
+    Pixels[PixelIdx] = BlankColor;
+
+  me_Ws2812b::TLedStripeState StripeState;
+
+  StripeState.Pixels = Pixels;
+  StripeState.Length = NumPixels;
+  StripeState.Pin = LedStripePin;
+
+  me_Ws2812b::SetLedStripeState(StripeState);
+}
+
+/*
   Send smooth transition from <StartColor> to <EndColor>.
 */
 void Test_ColorSmoothing()
@@ -82,13 +108,17 @@ void Test_ColorSmoothing()
 
 void setup()
 {
-  me_Uart::Init(me_Uart::Speed_115k_Bps);
+  Console.Init();
 
-  Console.Print("[me_Ws2812b.Demo_Color] Hello there!");
+  Console.Print("[me_Ws2812b.Demo_Color] Color smoothing test");
+
+  BlankLedStripe();
+
+  me_Delays::Delay_S(1);
 
   Test_ColorSmoothing();
 
-  Console.Print("[me_Ws2812b.Demo_Color] Done.");
+  Console.Print("Done");
 }
 
 void loop()
@@ -96,8 +126,6 @@ void loop()
 }
 
 /*
-  2024-03
-  2024-04
-  2024-05
-  2024-12
+  2024 # # # #
+  2025-08-22
 */
