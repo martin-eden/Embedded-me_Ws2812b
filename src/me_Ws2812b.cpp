@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2024-12-20
+  Last mod.: 2025-08-22
 */
 
 /*
@@ -42,93 +42,84 @@
 
 #include <me_BaseTypes.h>
 #include <me_MemorySegment.h>
-#include <me_UnoAddresses.h> // GetPinAddress_Bits()
+#include <me_Delays.h>
+#include <me_Pins.h>
 
-#include <Arduino.h> // delayMicroseconds()
+#include <avr/common.h> // SREG
+#include <avr/interrupt.h> // cli()
 
 using namespace me_Ws2812b;
 
-using
-  me_MemorySegment::TMemorySegment;
-
 // Forwards:
-TBool EmitBytes(TMemorySegment Data, TUint_1 Pin)
-  __attribute__ ((optimize("O0")));
+TBool EmitBytes(
+  me_MemorySegment::TMemorySegment Data,
+  me_Pins::TPinLocation PinRef
+) __attribute__ ((optimize("O0")));
 //
 
 /*
-  Set stripe to given state.
+  Set stripe to given state
 
-  Number of pixels, their colors and output pin -
-  all described in state.
+  State provides pixels and output pin.
 */
 TBool me_Ws2812b::SetLedStripeState(
   TLedStripeState State
 )
 {
-  TUint_2 PixMemSize; // length of memory segment with pixels data
+  const TUint_2 LatchDuration_Us = 50;
+  const TUint_2 MaxPixelsLength = TUint_2_Max / sizeof(TPixel);
 
-  // Set <PixMemSize>
-  {
-    const TUint_2 MaxPixelsLength = 0xFFFF / sizeof(TPixel);
+  me_Pins::TOutputPin LedPin;
+  me_MemorySegment::TMemorySegment DataSeg;
+  me_Pins::TPinLocation PinRef;
 
-    if (State.Length > MaxPixelsLength)
-      return false;
+  // Fail on impossible length
+  if (State.Length > MaxPixelsLength)
+    return false;
 
-    PixMemSize = State.Length * sizeof(TPixel);
-  }
+  DataSeg.Addr = (TAddress) State.Pixels;
+  DataSeg.Size = State.Length * sizeof(TPixel);
 
-  // Prepare for transmission
-  pinMode(State.Pin, OUTPUT);
-  digitalWrite(State.Pin, LOW);
+  if (!me_Pins::Freetown::InitPinRecord(&PinRef, State.Pin))
+    return false;
 
-  // Transmission
-  TMemorySegment DataSeg;
+  LedPin.Init(State.Pin);
 
-  DataSeg.Addr = (TUint_2) State.Pixels;
-  DataSeg.Size = PixMemSize;
+  LedPin.Write(0);
+  me_Delays::Delay_Us(LatchDuration_Us);
 
-  TBool Result = EmitBytes(DataSeg, State.Pin);
+  if (!EmitBytes(DataSeg, PinRef))
+    return false;
 
-  // End transmission: send reset - keep LOW for 50+ us
-  const TUint_2 LatchDuration_us = 50;
-  delayMicroseconds(LatchDuration_us);
+  LedPin.Write(0);
+  me_Delays::Delay_Us(LatchDuration_Us);
 
-  return Result;
+  return true;
 }
 
 /*
   Meat function for emitting bytes at 800 kBits
 */
 TBool EmitBytes(
-  TMemorySegment Data,
-  TUint_1 Pin
+  me_MemorySegment::TMemorySegment Data,
+  me_Pins::TPinLocation PinRef
 )
 {
-  // Populate <PortAddress> and <PortOrMask> from <Pin>
   TUint_2 PortAddress;
   TUint_1 PortOrMask;
-  {
-    TUint_2 PinAddress;
-    TUint_1 PinBit;
-
-    TBool IsOk =
-      me_UnoAddresses::GetPinAddress(&PinAddress, &PinBit, Pin);
-
-    if (!IsOk)
-      return false;
-
-    PortAddress = PinAddress;
-    PortOrMask = (1 << PinBit);
-  }
-
-  // Zero size? Job done!
-  if (Data.Size == 0)
-    return true;
 
   TUint_1 DataByte;
   TUint_1 BitCounter;
   TUint_1 PortValue;
+
+  TUint_1 OrigSreg;
+
+  PortAddress = PinRef.BaseAddress;
+  PortOrMask = (1 << PinRef.PinOffset);
+
+  // Zero size? Job done!
+  if (Data.Size == 0)
+    return true;
 
   /*
     Disable interrupts while sending packet. Or something will happen
@@ -136,7 +127,8 @@ TBool EmitBytes(
 
     Interrupt flag is stored among other things in SREG.
   */
-  TUint_1 OrigSreg = SREG;
+  OrigSreg = SREG;
+
   cli();
 
   /*
@@ -176,8 +168,8 @@ TBool EmitBytes(
     # Init
 
       # Weird instructions to locate this place in disassembly
-      ldi %[BitCounter], 0xA9
-      ldi %[BitCounter], 0xAA
+      # ldi %[BitCounter], 0xA9
+      # ldi %[BitCounter], 0xAA
 
       ld %[PortValue], %a[PortAddress]
 
@@ -270,4 +262,5 @@ TBool EmitBytes(
   2024-04 Cleanup
   2024-05 Core change to support variable pins
   2024-12-20
+  2025-08-22
 */
