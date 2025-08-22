@@ -83,7 +83,8 @@ TBool me_Ws2812b::SetLedStripeState(
   if (!me_Pins::Freetown::InitPinRecord(&PinRef, State.Pin))
     return false;
 
-  LedPin.Init(State.Pin);
+  if (!LedPin.Init(State.Pin))
+    return false;
 
   LedPin.Write(0);
   me_Delays::Delay_Us(LatchDuration_Us);
