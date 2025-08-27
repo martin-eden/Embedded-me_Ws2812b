@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2025-08-22
+  Last mod.: 2025-08-27
 */
 
 /*
@@ -41,7 +41,6 @@
 #include <me_Ws2812b.h>
 
 #include <me_BaseTypes.h>
-#include <me_MemorySegment.h>
 #include <me_Delays.h>
 #include <me_Pins.h>
 
@@ -52,7 +51,7 @@ using namespace me_Ws2812b;
 
 // Forwards:
 TBool EmitBytes(
-  me_MemorySegment::TMemorySegment Data,
+  TAddressSegment Data,
   me_Pins::TPinLocation PinRef
 ) __attribute__ ((optimize("O0")));
 //
@@ -70,7 +69,7 @@ TBool me_Ws2812b::SetLedStripeState(
   const TUint_2 MaxPixelsLength = TUint_2_Max / sizeof(TPixel);
 
   me_Pins::TOutputPin LedPin;
-  me_MemorySegment::TMemorySegment DataSeg;
+  TAddressSegment DataSeg;
   me_Pins::TPinLocation PinRef;
 
   // Fail on impossible length
@@ -102,7 +101,7 @@ TBool me_Ws2812b::SetLedStripeState(
   Meat function for emitting bytes at 800 kBits
 */
 TBool EmitBytes(
-  me_MemorySegment::TMemorySegment Data,
+  TAddressSegment Data,
   me_Pins::TPinLocation PinRef
 )
 {
