@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2025-08-27
+  Last mod.: 2026-02-17
 */
 
 /*
@@ -43,6 +43,7 @@
 #include <me_BaseTypes.h>
 #include <me_Delays.h>
 #include <me_Pins.h>
+#include <me_Bits_Workmem.h>
 
 #include <avr/common.h> // SREG
 #include <avr/interrupt.h> // cli()
@@ -52,7 +53,7 @@ using namespace me_Ws2812b;
 // Forwards:
 TBool EmitBytes(
   TAddressSegment Data,
-  me_Pins::TPinLocation PinRef
+  me_Bits_Workmem::TBitLocation PinWriteBitLoc
 ) __attribute__ ((optimize("O0")));
 //
 
@@ -70,7 +71,7 @@ TBool me_Ws2812b::SetLedStripeState(
 
   me_Pins::TOutputPin LedPin;
   TAddressSegment DataSeg;
-  me_Pins::TPinLocation PinRef;
+  me_Bits_Workmem::TBitLocation PinWriteBitLoc;
 
   // Fail on impossible length
   if (State.Length > MaxPixelsLength)
@@ -79,8 +80,10 @@ TBool me_Ws2812b::SetLedStripeState(
   DataSeg.Addr = (TAddress) State.Pixels;
   DataSeg.Size = State.Length * sizeof(TPixel);
 
-  if (!me_Pins::Freetown::InitPinRecord(&PinRef, State.Pin))
+  if (!me_Pins::Freetown::CheckPinNumber(State.Pin))
     return false;
+
+  me_Pins::Freetown::GetWritePinBit(&PinWriteBitLoc, State.Pin);
 
   if (!LedPin.Init(State.Pin))
     return false;
@@ -88,7 +91,7 @@ TBool me_Ws2812b::SetLedStripeState(
   LedPin.Write(0);
   me_Delays::Delay_Us(LatchDuration_Us);
 
-  if (!EmitBytes(DataSeg, PinRef))
+  if (!EmitBytes(DataSeg, PinWriteBitLoc))
     return false;
 
   LedPin.Write(0);
@@ -102,11 +105,11 @@ TBool me_Ws2812b::SetLedStripeState(
 */
 TBool EmitBytes(
   TAddressSegment Data,
-  me_Pins::TPinLocation PinRef
+  me_Bits_Workmem::TBitLocation PinWriteBitLoc
 )
 {
   TUint_2 PortAddress;
-  TUint_1 PortOrMask;
+  TUint_1 PortMask;
 
   TUint_1 DataByte;
   TUint_1 BitCounter;
@@ -114,8 +117,8 @@ TBool EmitBytes(
 
   TUint_1 OrigSreg;
 
-  PortAddress = PinRef.BaseAddress;
-  PortOrMask = (1 << PinRef.PinOffset);
+  PortAddress = PinWriteBitLoc.MemAddr;
+  PortMask = (1 << PinWriteBitLoc.BitOffset);
 
   // Zero size? Job done!
   if (Data.Size == 0)
@@ -183,7 +186,7 @@ TBool EmitBytes(
     BitLoop_Start:
 
       # Output HIGH
-      or %[PortValue], %[PortOrMask]
+      or %[PortValue], %[PortMask]
       st %a[PortAddress], %[PortValue]
 
       # Extract next data bit
@@ -194,7 +197,7 @@ TBool EmitBytes(
     IsZero:
 
       # Flip to LOW
-      eor %[PortValue], %[PortOrMask]
+      eor %[PortValue], %[PortMask]
       st %a[PortAddress], %[PortValue]
 
       nop
@@ -223,7 +226,7 @@ TBool EmitBytes(
       nop
 
       # Flip to LOW
-      eor %[PortValue], %[PortOrMask]
+      eor %[PortValue], %[PortMask]
       st %a[PortAddress], %[PortValue]
 
       dec %[BitCounter]
@@ -247,7 +250,7 @@ TBool EmitBytes(
     :
     // Pointer to port address
     [PortAddress] "z" (PortAddress),
-    [PortOrMask] "a" (PortOrMask),
+    [PortMask] "a" (PortMask),
     // Pointer to byte array in some auto-incremented register
     [Bytes] "x" (Data.Addr)
   );
