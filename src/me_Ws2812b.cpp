@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2026-02-17
+  Last mod.: 2026-02-19
 */
 
 /*
@@ -53,7 +53,8 @@ using namespace me_Ws2812b;
 // Forwards:
 TBool EmitBytes(
   TAddressSegment Data,
-  me_Bits_Workmem::TBitLocation PinWriteBitLoc
+  TAddress PortAddress,
+  TUint_1 PortMask
 ) __attribute__ ((optimize("O0")));
 //
 
@@ -72,6 +73,8 @@ TBool me_Ws2812b::SetLedStripeState(
   me_Pins::TOutputPin LedPin;
   TAddressSegment DataSeg;
   me_Bits_Workmem::TBitLocation PinWriteBitLoc;
+  TAddress PortAddress;
+  TUint_1 PortMask;
 
   // Fail on impossible length
   if (State.Length > MaxPixelsLength)
@@ -85,16 +88,21 @@ TBool me_Ws2812b::SetLedStripeState(
 
   me_Pins::Freetown::GetWritePinBit(&PinWriteBitLoc, State.Pin);
 
+  PortAddress = PinWriteBitLoc.Address;
+  PortMask = me_Bits_Workmem::GetBitMask(PinWriteBitLoc.BitOffset);
+
   if (!LedPin.Init(State.Pin))
     return false;
 
   LedPin.Write(0);
+
   me_Delays::Delay_Us(LatchDuration_Us);
 
-  if (!EmitBytes(DataSeg, PinWriteBitLoc))
+  if (!EmitBytes(DataSeg, PortAddress, PortMask))
     return false;
 
   LedPin.Write(0);
+
   me_Delays::Delay_Us(LatchDuration_Us);
 
   return true;
@@ -105,20 +113,15 @@ TBool me_Ws2812b::SetLedStripeState(
 */
 TBool EmitBytes(
   TAddressSegment Data,
-  me_Bits_Workmem::TBitLocation PinWriteBitLoc
+  TAddress PortAddress,
+  TUint_1 PortMask
 )
 {
-  TUint_2 PortAddress;
-  TUint_1 PortMask;
-
   TUint_1 DataByte;
   TUint_1 BitCounter;
   TUint_1 PortValue;
 
   TUint_1 OrigSreg;
-
-  PortAddress = PinWriteBitLoc.MemAddr;
-  PortMask = (1 << PinWriteBitLoc.BitOffset);
 
   // Zero size? Job done!
   if (Data.Size == 0)
@@ -261,9 +264,7 @@ TBool EmitBytes(
 }
 
 /*
-  2024-03 Core
-  2024-04 Cleanup
-  2024-05 Core change to support variable pins
-  2024-12-20
-  2025-08-22
+  2024 # # # #
+  2025 #
+  2026-02-19
 */
