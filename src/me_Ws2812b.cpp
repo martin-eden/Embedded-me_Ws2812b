@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2026-02-19
+  Last mod.: 2026-02-20
 */
 
 /*
@@ -43,7 +43,7 @@
 #include <me_BaseTypes.h>
 #include <me_Delays.h>
 #include <me_Pins.h>
-#include <me_Bits_Workmem.h>
+#include <me_Bits.h>
 
 #include <avr/common.h> // SREG
 #include <avr/interrupt.h> // cli()
@@ -72,7 +72,7 @@ TBool me_Ws2812b::SetLedStripeState(
 
   me_Pins::TOutputPin LedPin;
   TAddressSegment DataSeg;
-  me_Bits_Workmem::TBitLocation PinWriteBitLoc;
+  me_Bits::TBitLocation PinWriteBitLoc;
   TAddress PortAddress;
   TUint_1 PortMask;
 
@@ -89,7 +89,7 @@ TBool me_Ws2812b::SetLedStripeState(
   me_Pins::Freetown::GetWritePinBit(&PinWriteBitLoc, State.Pin);
 
   PortAddress = PinWriteBitLoc.Address;
-  PortMask = me_Bits_Workmem::GetBitMask(PinWriteBitLoc.BitOffset);
+  PortMask = me_Bits::Freetown::GetBitMask(PinWriteBitLoc.BitOffset);
 
   if (!LedPin.Init(State.Pin))
     return false;
