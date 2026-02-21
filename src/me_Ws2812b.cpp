@@ -44,14 +44,12 @@
 #include <me_Delays.h>
 #include <me_Pins.h>
 #include <me_Bits.h>
-
-#include <avr/common.h> // SREG
-#include <avr/interrupt.h> // cli()
+#include <me_Interrupts.h>
 
 using namespace me_Ws2812b;
 
 // Forwards:
-TBool EmitBytes(
+static void EmitBytes(
   TAddressSegment Data,
   TAddress PortAddress,
   TUint_1 PortMask
@@ -98,8 +96,17 @@ TBool me_Ws2812b::SetLedStripeState(
 
   me_Delays::Delay_Us(LatchDuration_Us);
 
-  if (!EmitBytes(DataSeg, PortAddress, PortMask))
-    return false;
+  /*
+    Disable interrupts while sending packet
+
+    Or stock Arduino's Counter 1 interrupt will happen every 1024 us
+    with a duration near 6 us and spoil our signal.
+  */
+  {
+    me_Interrupts::TInterruptsDisabler NoInts;
+
+    EmitBytes(DataSeg, PortAddress, PortMask);
+  }
 
   LedPin.Write(0);
 
@@ -111,7 +118,7 @@ TBool me_Ws2812b::SetLedStripeState(
 /*
   Meat function for emitting bytes at 800 kBits
 */
-TBool EmitBytes(
+void EmitBytes(
   TAddressSegment Data,
   TAddress PortAddress,
   TUint_1 PortMask
@@ -121,21 +128,9 @@ TBool EmitBytes(
   TUint_1 BitCounter;
   TUint_1 PortValue;
 
-  TUint_1 OrigSreg;
-
   // Zero size? Job done!
   if (Data.Size == 0)
-    return true;
-
-  /*
-    Disable interrupts while sending packet. Or something will happen
-    every 1024 us with a duration near 6 us and spoil our signal.
-
-    Interrupt flag is stored among other things in SREG.
-  */
-  OrigSreg = SREG;
-
-  cli();
+    return;
 
   /*
     Double "for" in GNU asm.
@@ -257,10 +252,6 @@ TBool EmitBytes(
     // Pointer to byte array in some auto-incremented register
     [Bytes] "x" (Data.Addr)
   );
-
-  SREG = OrigSreg;
-
-  return true;
 }
 
 /*
